@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# travis-tools/deploy-to-github-pages
+# GH_PAGES_REPO="randompaper/randompaper.github.io"
+# GH_PAGES_PATH="public"
+# GH_PAGES_DOMAIN="randompaper.co"
+
+set -e
+
+if [[ $TRAVIS_BRANCH != master ]]; then
+  echo "This is only available on master branch."
+  exit 0
+fi
+
+if [ ! -n "$GITHUB_TOKEN" ]; then
+  echo "Missing GITHUB_TOKEN for pushing to Github"
+  echo "Visit website and generate token: https://github.com/settings/tokens"
+  exit 1
+fi
+
+echo "Using '$GH_PAGES_REPO'"
+
+branch="gh-pages"
+if [[ $GH_PAGES_REPO =~ "\.github\.(io|com)$" ]]; then
+  branch="master"
+fi
+echo "Using branch '$branch'"
+
+if [ -d "$GH_PAGES_PATH" ]; then
+  echo "Using '$GH_PAGES_PATH' as root dir instead of git root"
+  cd $GH_PAGES_PATH
+fi
+
+if [ -n $GH_PAGES_DOMAIN ]; then
+  echo "Generating CNAME for '$GH_PAGES_DOMAIN'"
+  echo $GH_PAGES_DOMAIN > CNAME
+fi
+
+remote="https://$GITHUB_TOKEN@github.com/$GH_PAGES_REPO.git"
+
+rm -rf .git
+git init
+git config user.email "support@travis-ci.org"
+git config user.name "travisbot"
+git remote add origin "$remote"
+git fetch origin
+git branch --track master origin/master
+git add -A
+git commit -m "Deploy from travis $TRAVIS_BUILD_ID"
+result="$(git push $remote master:$branch)"
+
+if [[ $? -ne 0 ]]; then
+  echo "$result"
+  echo "Failed deploying to Github Pages"
+  exit 1
+else
+  echo "Deployed to Github Pages"
+fi

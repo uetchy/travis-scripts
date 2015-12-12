@@ -21,7 +21,7 @@ fi
 echo "Using '$GH_PAGES_REPO'"
 
 branch="gh-pages"
-if [[ $GH_PAGES_REPO =~ "\.github\.(io|com)$" ]]; then
+if [[ $GH_PAGES_REPO =~ \.github\.(io|com)$ ]]; then
   branch="master"
 fi
 echo "Using branch '$branch'"

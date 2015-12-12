@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+HUGO_VERSION=0.15
+
+HUGO_PACKAGE=hugo_${HUGO_VERSION}_linux_amd64
+curl -L https://github.com/spf13/hugo/releases/download/v0.15/$HUGO_PACKAGE.tar.gz | tar xz
+mkdir $HOME/bin
+mv ./$HUGO_PACKAGE/$HUGO_PACKAGE $HOME/bin/hugo
